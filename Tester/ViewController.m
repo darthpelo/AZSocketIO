@@ -47,18 +47,25 @@
 - (void)setupConn
 {
     __weak ViewController *blockSelf = self;
-    self.socket = [[AZSocketIO alloc] initWithHost:@"localhost" andPort:@"9000" secure:NO];
-    //socket.transports = [NSMutableSet setWithObject:@"xhr-polling"];
+
+    self.socket = [[AZSocketIO alloc] initWithHost:@"testing.veespo.com" andPort:@"80" secure:NO withNamespace:@"/interface"];
+    
     [self.socket setEventReceivedBlock:^(NSString *eventName, id data) {
         blockSelf.name.text = eventName;
         blockSelf.args.text = [data description];
         [NSTimer scheduledTimerWithTimeInterval:1 target:blockSelf selector:@selector(sendTime) userInfo:nil repeats:NO];
     }];
+    
     [self.socket connectWithSuccess:^{
         NSLog(@"Hurray");
     } andFailure:^(NSError *error) {
         NSLog(@"Boo: %@", error);
     }];
+    
+    [self.socket setMessageReceivedBlock:^(id data) {
+        NSLog(@"%@", data);
+    }];
+
 }
 
 - (void)sendTime
